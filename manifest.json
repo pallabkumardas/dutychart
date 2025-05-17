@@ -1,0 +1,8 @@
+{
+  "name": "Duty Chart Management",
+  "short_name": "DutyChart",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#eef2f7",
+  "theme_color": "#0066ff"
+}

@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Duty Chart Management</title>
+
+  <!-- Link to your PWA manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --primary-color:#0066ff;
+      --primary-dark-color:#0042c1;
+      --primary-light-color: #5091ff;
+      --accent-color:#ff6b6b;
+      --accent-dark-color: #c94d4d;
+
+      --text-light-color: #f8f9fa;
+      --text-dark-color: #343a40;
+      --text-muted-color: #6c757d;
+      
+      --bg-main-gradient: linear-gradient(135deg, #eef2f7 0%, #d1e3f3 100%);
+      --card-bg-gradient: linear-gradient(120deg, #ffffff 0%, #f8f9fa 100%);
+      --header-bg-gradient: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-dark-color) 100%);
+      --table-header-bg-gradient: linear-gradient(to bottom, var(--primary-light-color) 0%, var(--primary-color) 100%);
+
+      --border-color-strong: #aab8c5;
+      --border-color-light: #ced4da;
+      --border-radius-sm: 3px;
+      --border-radius-md: 5px;
+
+      --shadow-soft: 0 2px 5px rgba(0,0,0,0.1);
+      --shadow-strong: 0 4px 8px rgba(0,0,0,0.15);
+
+      --compact-padding-ver: 4px;
+      --compact-padding-hor: 8px;
+      --standard-padding-ver: 6px;
+      --standard-padding-hor: 10px;
+
+      --primary:#0066ff;      --primary-dark:#0042c1;
+      --bg-light:#f4f8fb;
+      --text-dark:#333;
+      --success-bg: #d4edda; --success-text: #155724; --success-border: #c3e6cb;
+      --error-bg: #f8d7da;   --error-text: #721c24;   --error-border: #f5c6cb;
+      --surface-color: #fff; 
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Poppins', sans-serif;
+      background: var(--bg-main-gradient);
+      color: var(--text-dark-color);
+      line-height:1.4; 
+      font-size: 12px; 
+    }
+
+    header{
+      background: var(--header-bg-gradient);
+      color: var(--text-light-color);
+      padding: var(--standard-padding-ver) var(--standard-padding-hor);
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap: var(--compact-padding-hor);
+      box-shadow: var(--shadow-strong);
+      border-bottom: 2px solid var(--primary-dark-color);
+      position: sticky; 
+      top: 0;
+      z-index: 100;
+    }
+    header h1{
+        flex:1 1 100%;
+        font-size:1.5rem; 
+        font-weight:600;
+        text-align:center;
+        margin-bottom: var(--compact-padding-ver);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+    header button,
+    header input[type=number],
+    header label{
+      border:none;
+      border-radius:var(--border-radius-sm);
+      padding: var(--compact-padding-ver) var(--standard-padding-hor);
+      font-size:0.8rem; 
+      font-weight: 500;
+    }
+    header button{
+        background:var(--accent-color);
+        color:var(--text-light-color);
+        cursor:pointer;
+        transition: background-color .2s, transform .1s;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    header button:hover{
+        background:var(--accent-dark-color);
+        transform: translateY(-1px);
+    }
+    header input[type=number]{
+        width:55px; 
+        border:1px solid rgba(255,255,255,0.3);
+        background:rgba(0,0,0,0.1);
+        color:var(--text-light-color);
+        text-align:center;
+        padding: var(--compact-padding-ver);
+    }
+    header label{color:rgba(255,255,255,0.9); font-weight: 400;}
+
+    .main{
+        display:flex;
+        flex-direction: column;
+        gap:var(--standard-padding-hor);
+        max-width:1366px; 
+        margin:var(--standard-padding-hor) auto;
+        padding: 0 var(--compact-padding-hor);
+    }
+    @media (min-width: 768px) {
+        .main {
+            flex-direction: row;
+        }
+    }
+
+    .form-wrap, .card {
+      background: var(--card-bg-gradient);
+      border-radius:var(--border-radius-md);
+      box-shadow: var(--shadow-soft);
+      padding:var(--standard-padding-hor); 
+      border: 1px solid var(--border-color-strong);
+    }
+    .form-wrap{
+      flex:0 0 260px; 
+      display: flex;
+      flex-direction: column;
+    }
+    .form-wrap form {
+        display: flex;
+        flex-direction: column;
+    }
+    .form-wrap h2, .card h3, .group-card h4 { 
+        text-align:center;
+        color:var(--primary-dark-color);
+        font-weight:600;
+        font-size: 1.0rem; 
+        margin-bottom:var(--standard-padding-hor);
+        padding-bottom: var(--compact-padding-ver);
+        border-bottom: 1px dashed var(--border-color-light);
+    }
+      .group-card h4 { 
+        font-size: 0.9rem; 
+        color: var(--primary-color);
+        border-bottom-style: solid;
+      }
+
+    form label{ 
+      display:block;
+      margin-bottom: 3px; 
+      color:var(--text-muted-color);
+      font-weight:500;
+      font-size:0.75rem; 
+    }
+    form input[type="date"],
+    form input[type="text"] {
+        width:100%;
+        padding: var(--compact-padding-ver) var(--compact-padding-hor);
+        margin-bottom:var(--standard-padding-hor);
+        border: 1px solid var(--border-color-light);
+        border-radius:var(--border-radius-sm);
+        font-size:0.8rem; 
+        background-color: #fff; 
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    form input[type="date"]:focus,
+    form input[type="text"]:focus {
+        border-color:var(--primary-color);
+        box-shadow:0 0 0 2px color-mix(in srgb, var(--primary-color) 20%, transparent);
+    }
+    form button[type="submit"]{ 
+        width:100%;
+        background:var(--primary-color);
+        color:var(--text-light-color);
+        font-weight:500;
+        cursor:pointer;
+        padding: var(--standard-padding-ver) var(--standard-padding-hor);
+        border:none;
+        border-radius:var(--border-radius-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: var(--shadow-soft);
+        transition: background-color .2s, transform .1s;
+        margin-top: var(--compact-padding-ver); 
+    }
+    form button[type="submit"]:hover{
+        background:var(--primary-dark-color);
+        transform: translateY(-1px);
+    }
+
+    /* Common styles for radio and multi-select containers */
+    .radio-select, .multi-select {
+      gap:var(--compact-padding-ver);
+      background: color-mix(in srgb, var(--primary-color) 5%, transparent);
+      border: 1px solid var(--border-color-light);
+      padding:var(--compact-padding-ver);
+      margin-bottom:var(--standard-padding-hor);
+      border-radius: var(--border-radius-sm);
+    }
+
+    /* Specific for radio select (wrapping items) */
+    .radio-select {
+      display:flex;
+      flex-wrap:wrap;
+    }
+
+    /* Specific for multi-select (single column, no scroll, items wrap if needed) */
+    .multi-select {
+      display:flex;
+      flex-direction: column; /* Stack items vertically first */
+    }
+    
+    /* Common styling for labels within radio-select and multi-select */
+    .radio-select label, .multi-select label{
+      gap: 3px; 
+      padding: 3px var(--compact-padding-hor); 
+      border: 1px solid var(--border-color-light);
+      border-radius:var(--border-radius-sm);
+      background:var(--surface-color, #fff); 
+      font-size: 0.65rem; /* Made font smaller */
+      color: var(--text-muted-color); 
+      font-weight: 600; /* Made font bolder */
+      box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+      display: inline-flex; 
+      align-items: center;
+      cursor: pointer; 
+      margin-right: var(--compact-padding-ver); 
+    }
+    .radio-select label:hover, .multi-select label:hover{
+        border-color:var(--primary-color);
+        color: var(--primary-color);
+    }
+    .radio-select label:has(input[type="radio"]:checked),
+    .multi-select label:has(input[type="checkbox"]:checked) {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-dark-color);
+        font-weight: 700; /* Bolder when selected */
+    }
+      .radio-select label:has(input[type="radio"]:checked) input[type="radio"],
+      .multi-select label:has(input[type="checkbox"]:checked) input[type="checkbox"] {
+        accent-color: var(--primary-light-color); 
+      }
+    
+    fieldset{
+        border:none; 
+        padding:0;
+        margin-bottom:var(--standard-padding-hor);
+    }
+    legend{ 
+      font-size:0.8rem; 
+      font-weight:600; 
+      color:var(--primary-dark-color); 
+      padding: 0;
+      margin-left: 0;
+      margin-bottom: var(--compact-padding-ver); 
+    }
+
+    .form-message {
+        padding: var(--compact-padding-ver) var(--compact-padding-hor);
+        margin-bottom: var(--standard-padding-hor);
+        border-radius: var(--border-radius-sm);
+        font-size: 0.75rem; 
+        display: none; 
+        text-align: left; 
+        border: 1px solid transparent;
+    }
+    .form-message.success {
+        background-color: var(--success-bg); color: var(--success-text);
+        border-left: 3px solid var(--success-border); 
+    }
+    .form-message.error {
+        background-color: var(--error-bg); color: var(--error-text);
+        border-left: 3px solid var(--error-border); 
+    }
+
+    .right{
+        flex:1;
+        display:flex;
+        flex-direction:column;
+        gap:var(--standard-padding-hor);
+        min-width:0; 
+    }
+    .card { 
+        display: flex;
+        flex-direction: column;
+    }
+    .card > h3, .card > h4 {
+        flex-shrink: 0; 
+    }
+
+    .scroll-x { 
+        overflow-x: auto; 
+    }
+
+    .split-tables{
+        display:flex; 
+        flex-direction: column; 
+        gap:var(--standard-padding-hor);
+    }
+      @media (min-width: 600px) { 
+        .split-tables { flex-direction: row; }
+    }
+
+    table{
+        border-collapse:separate; 
+        border-spacing: 0;
+        font-size:0.75rem; 
+        width:100%;
+        min-width:350px; 
+        border: 1px solid var(--border-color-strong);
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-soft);
+        overflow: hidden; 
+    }
+    th,td{
+        border-bottom: 1px solid var(--border-color-light);
+        border-right: 1px solid var(--border-color-light);
+        text-align:center; 
+        padding: 3px 5px; 
+    }
+    th:last-child, td:last-child {
+        border-right: none;
+    }
+    tr:last-child td {
+        border-bottom: none;
+    }
+    th{
+        background: var(--table-header-bg-gradient);
+        color:var(--text-light-color);
+        font-weight:600;
+        font-size: 0.7rem; 
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: sticky; top: 0; 
+        z-index: 1; 
+    }
+    tr:nth-child(even){ background-color: color-mix(in srgb, var(--primary-color) 5%, transparent); }
+    tr:nth-child(odd){ background-color: color-mix(in srgb, var(--surface-color, #fff) 95%, transparent); }
+    tr:hover{
+        background-color: color-mix(in srgb, var(--accent-color) 20%, transparent);
+        color: var(--text-dark-color); 
+    }
+    .roomCell{ vertical-align:middle; } 
+    .roomCell span { display: inline; } 
+    
+    .roomActionBtn{
+        margin-top:var(--compact-padding-ver);
+        font-size:0.65rem; 
+        padding: 2px var(--compact-padding-hor); 
+        border:none;
+        border-radius:var(--border-radius-sm);
+        background:var(--primary-color);
+        color:var(--text-light-color);
+        cursor:pointer;
+        text-transform: uppercase;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+    .roomActionBtn:hover{ background-color: var(--primary-dark-color); }
+
+    #modalOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;z-index:999} 
+    #editModal{
+        position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+        width:90%;max-width:550px; 
+        background:var(--surface-color, #fff); 
+        border-radius:var(--border-radius-md); 
+        padding:var(--standard-padding-hor);
+        box-shadow: var(--shadow-strong);
+        border: 1px solid var(--border-color-strong);
+        display:none;z-index:1000;
+        max-height: 85vh; 
+        display: flex; 
+        flex-direction: column; 
+    }
+    #editModal h2{ 
+        text-align:left;
+        color:var(--primary-dark-color);
+        margin-bottom:var(--standard-padding-hor);
+        font-size: 1.0rem; 
+        font-weight: 600;
+        padding-bottom: var(--compact-padding-ver);
+        border-bottom: 1px solid var(--border-color-light);
+        flex-shrink: 0; 
+    }
+    #editModal .closeBtn{
+        position:absolute;top:var(--compact-padding-ver);right:var(--compact-padding-ver); 
+        background:transparent;
+        color:var(--text-muted-color);
+        border:none;
+        border-radius:50%;
+        width: 28px; height: 28px; line-height: 28px; text-align: center; 
+        font-size:0.9rem;cursor:pointer; 
+        transition: background-color .2s, color .2s;
+    }
+    #editModal .closeBtn:hover {
+        background-color: color-mix(in srgb, var(--accent-color) 20%, transparent);
+        color: var(--accent-dark-color);
+    }
+    #editModal form { 
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        min-height: 0; 
+    }
+    #editFacultySectionsContainer {
+        margin-bottom: 10px;
+        flex-grow: 1; 
+        overflow-y: auto; 
+        padding-right: 5px; 
+        min-height: 150px; 
+    }
+    #editModal fieldset legend { 
+      font-size:0.8rem; 
+      font-weight:600; 
+      color:var(--primary-dark-color); 
+      padding: 0;
+      margin-left: 0;
+      margin-bottom: var(--compact-padding-ver); 
+    }
+    #editModal .multi-select { 
+      margin-top: 0; 
+      margin-bottom: var(--compact-padding-hor); 
+    }
+    #editModal button[type="submit"] { 
+        margin-top: var(--standard-padding-hor); 
+        flex-shrink: 0; 
+    }
+
+    /* Print specific styles */
+    @media print{
+      @page {
+        size: A4 landscape;
+        margin: 1.5cm; /* Page margin */
+      }
+      body { 
+        background-color: white !important; 
+        font-size: 8pt !important; 
+        color: black !important; 
+        height: auto !important; 
+        overflow: visible !important;
+        line-height: 1.2 !important;
+        -webkit-print-color-adjust: exact !important; /* Enforce exact colors (black/white) */
+        print-color-adjust: exact !important;
+      } 
+      /* Hide elements not intended for print */
+      header, .form-wrap, #modalOverlay, #editModal, .form-message, .roomActionBtn, .group-card {
+        display: none !important;
+      }
+      
+      .main, .right { /* Ensure full width and proper layout for print */
+        max-width: 100% !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex-direction: column !important; 
+        gap: 12px !important; /* Space between printed charts */
+      }
+      .card { /* Styling for the duty chart cards */
+        padding: 8px !important; 
+        box-shadow: none !important; 
+        border: 1px solid #777 !important; /* Slightly more visible border for outlines */
+        page-break-inside: avoid; 
+        overflow: visible !important; 
+        background: white !important; /* Explicit white background */
+      }
+      .card h3 { /* Styling for duty chart titles */
+        font-size: 10pt !important; 
+        text-align: left !important; 
+        margin-top: 0; /* Remove any top margin */
+        margin-bottom: 6px !important;
+        padding-bottom: 3px !important;
+        border-bottom: 1px solid #999 !important; /* Slightly more visible border */
+        color: black !important;
+        background: none !important; /* No background fill */
+      }
+      .scroll-x { /* Remove scrollbars for print */
+        max-height: none !important; 
+        overflow: visible !important; 
+      }
+      
+      table, th, td { 
+        font-size: 7.5pt !important; 
+        padding: 2px 3px !important; 
+        border: 1px solid #aaa !important; /* Consistent, slightly lighter border for table elements */
+        color: black !important; 
+        background-color: white !important; /* No fill for any table cells */
+        border-collapse: collapse !important; /* Ensure borders are clean */
+      }
+      table {
+         border-spacing: 0; /* Remove spacing if any was inherited */
+      }
+      th { 
+        background-color: white !important; /* No fill for headers */
+        color: black !important; 
+        font-weight: bold !important; 
+        position: static !important; /* Remove sticky positioning for print */
+        text-transform: uppercase; /* Keep uppercase for headers if desired */
+        letter-spacing: normal; /* Reset letter spacing if not needed */
+      }
+      tr {
+        page-break-inside: avoid; /* Try to keep rows on the same page */
+      }
+      td:first-child { /* Date column */
+        white-space: nowrap !important; /* Prevent date wrapping */
+      }
+      .roomCell span { /* Faculty names */
+        display: inline !important; 
+        color: black !important; 
+        font-weight: normal !important; /* Ensure normal weight unless specified otherwise */
+      } 
+      .roomCell br { 
+        display: none !important; /* Remove line breaks in cells for print if they cause issues */
+      } 
+    }
+  </style>
+</head><body>
+  <header>
+    <h1>Duty Chart Management</h1>
+    <label for="dutyLimit">Max Duties:</label>
+    <input type="number" id="dutyLimit" value="10" min="1" />
+    <button id="resetData">Reset Data</button>
+    <button id="printPDF">Print PDF</button>
+  </header>
+
+  <div class="main">
+    <aside class="form-wrap">
+      <h2>Assign Duties</h2>
+      <form id="dutyForm">
+        <div id="mainFormMessage" class="form-message"></div>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" required />
+
+        <fieldset>
+            <legend>Shift:</legend>
+            <div class="radio-select">
+              <label><input type="radio" name="shift" value="Morning" required /> Morning</label>
+              <label><input type="radio" name="shift" value="Afternoon" /> Afternoon</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Room:</legend>
+            <div class="radio-select">
+              <label><input type="radio" name="room" value="5" required /> 5</label>
+              <label><input type="radio" name="room" value="6" /> 6</label>
+              <label><input type="radio" name="room" value="7" /> 7</label>
+              <label><input type="radio" name="room" value="16" />16</label>
+              <label><input type="radio" name="room" value="17" />17</label>
+              <label><input type="radio" name="room" value="18" />18</label>
+              <label><input type="radio" name="room" value="23" />23</label>
+              <label><input type="radio" name="room" value="24" />24</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Full-Time</legend>
+          <div class="multi-select" id="mainFormFullTimeFaculty">
+            </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>SACT</legend>
+          <div class="multi-select" id="mainFormSactFaculty">
+            </div>
+        </fieldset>
+
+        <button type="submit">Assign Duty</button>
+      </form>
+    </aside>
+
+    <section class="right">
+      <div class="card"> <h3>Duty Chart: Morning Shifts</h3>
+        <div class="scroll-x">
+          <table id="morningDutyTable">
+            <thead><tr><th>Date</th><th>Room 5</th><th>Room 6</th><th>Room 7</th><th>Room 16</th><th>Room 17</th><th>Room 18</th><th>Room 23</th><th>Room 24</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card"> <h3>Duty Chart: Afternoon Shifts</h3>
+        <div class="scroll-x">
+          <table id="afternoonDutyTable">
+            <thead><tr><th>Date</th><th>Room 5</th><th>Room 6</th><th>Room 7</th><th>Room 16</th><th>Room 17</th><th>Room 18</th><th>Room 23</th><th>Room 24</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card group-card"> <h4>Room Assignment Frequency</h4>
+        <div class="split-tables">
+          <table id="roomFrequencyFTTable">
+            <thead><tr><th>Faculty (Full-Time)</th><th>5</th><th>6</th><th>7</th><th>16</th><th>17</th><th>18</th><th>23</th><th>24</th></tr></thead>
+            <tbody></tbody>
+          </table>
+
+          <table id="roomFrequencySACTTable">
+            <thead><tr><th>Faculty (SACT)</th><th>5</th><th>6</th><th>7</th><th>16</th><th>17</th><th>18</th><th>Room 23</th><th>Room 24</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card group-card"> <h4>Faculty Duties Remaining</h4>
+        <div class="split-tables">
+          <table id="facultyDutiesFTTable">
+            <thead><tr><th>Faculty (Full-Time)</th><th>Remaining</th></tr></thead>
+            <tbody></tbody>
+          </table>
+
+          <table id="facultyDutiesSACTTable">
+            <thead><tr><th>Faculty (SACT)</th><th>Remaining</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="modalOverlay"></div>
+  <div id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle" style="display:none;">
+    <button class="closeBtn" id="closeEditModal" aria-label="Close edit dialog">X</button>
+    <h2 id="editModalTitle">Edit Room Assignment</h2>
+    <form id="editDutyForm">
+      <div id="editFormMessage" class="form-message"></div>
+      <input type="hidden" id="editDate" />
+      <input type="hidden" id="editShift" />
+      <input type="hidden" id="editRoom" />
+
+      <div id="editFacultySectionsContainer">
+          <fieldset>
+              <legend>Full-Time</legend>
+              <div class="multi-select" id="editModalFullTimeFaculty">
+                  </div>
+          </fieldset>
+          <fieldset style="margin-top: 10px;"> 
+              <legend>SACT</legend>
+              <div class="multi-select" id="editModalSactFaculty">
+                  </div>
+          </fieldset>
+      </div>
+
+      <button type="submit" id="saveChangesBtn">Save Changes</button>
+    </form>
+  </div>
+
+  <script>
+    // Register service worker for PWA functionality
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => console.log('Service Worker registered:', registration))
+          .catch(error => console.error('Service Worker registration failed:', error));
+      });
+    }
+  (function() { 
+    // Constants for local storage keys
+    const DUTIES_KEY  = 'duties_v2'; 
+    const COUNTER_KEY = 'facultyCounters_v2'; 
+
+    // Faculty lists
+    const fullTimeList = [
+      'Abdul Kadir', 'Amajit Basu', 'Anirban Hatial','Hafizul Molla','Ishani Majumder','Mamata Malik','Manashree Mahata','Monalisha Dhibar',
+      'Pallab Kumar Das', 'Partha Sarathi Mandal', 'Pradip Kumar Mandal','Ranjan Sarkar','Samik Chakraborty','Shambhu Nath Soren','Somali Bhowmik','Sumanta Mandal'
+    ].sort(); 
+    const sactList = [
+      'Amitabha Sen','Asim Kumar Goswami','Chandan Chatterjee','Chittaranjan Pramanik','Krishnendu Bikash Mahato','Lalmohan Pati',
+      'Madhab Chandra Gope','Mansur Ansary','Niranjan Mandal','Pawan Kumar Tibriwala','Rajendra Prasad Saren','Sadhan Kumbhakar', 'Sandip Sutradhar', 'Tapan Kumar Patra', 'Taraprasanna Mukherjee'
+    ].sort(); 
+    const facultyList=[...fullTimeList,...sactList].sort();
+    const roomList=['5','6','7','16','17','18','23', '24']; 
+
+    // DOM Element references
+    const dutyLimitInput = document.getElementById('dutyLimit');
+    const dutyForm = document.getElementById('dutyForm');
+    const mainFormFullTimeFacultyContainer = document.getElementById('mainFormFullTimeFaculty');
+    const mainFormSactFacultyContainer = document.getElementById('mainFormSactFaculty');
+    
+    // Edit Modal specific DOM elements
+    const modalOverlay = document.getElementById('modalOverlay');
+    const editModal = document.getElementById('editModal');
+    const editDutyForm = document.getElementById('editDutyForm');
+    const saveChangesBtn = document.getElementById('saveChangesBtn');
+    const editModalFullTimeFacultyContainer = document.getElementById('editModalFullTimeFaculty');
+    const editModalSactFacultyContainer = document.getElementById('editModalSactFaculty');
+
+
+    /**
+     * Shows a UI message (success or error) to the user.
+     * @param {string} elementId - The ID of the message container element.
+     * @param {string} message - The message to display.
+     * @param {boolean} [isError=true] - True for error message, false for success.
+     * @param {number} [duration=3500] - Duration in ms to show the message. 0 for persistent.
+     */
+    function showUIMessage(elementId, message, isError = true, duration = 3500) { 
+      const msgEl = document.getElementById(elementId);
+      if (!msgEl) return;
+      msgEl.textContent = message;
+      msgEl.className = 'form-message'; 
+      if (isError) {
+          msgEl.classList.add('error');
+      } else {
+          msgEl.classList.add('success');
+      }
+      msgEl.style.display = 'block';
+      if (duration > 0) {
+          setTimeout(() => {
+              msgEl.textContent = '';
+              msgEl.style.display = 'none';
+          }, duration);
+      }
+    }
+    
+    /**
+     * Formats an ISO date string (YYYY-MM-DD) to DD-MM-YYYY.
+     * @param {string} isoDateString - The ISO date string.
+     * @returns {string} Formatted date string or original if invalid.
+     */
+    function formatDateToDDMMYYYY(isoDateString) {
+      if (!isoDateString) return '';
+      const dateParts = isoDateString.split('-'); 
+      if (dateParts.length === 3) {
+          return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; 
+      }
+      return isoDateString; 
+    }
+
+    /**
+     * Creates an array of label elements containing checkboxes for a given faculty list.
+     * @param {string[]} facultyArray - Array of faculty names.
+     * @param {string} groupName - Name for the checkbox group.
+     * @returns {HTMLLabelElement[]} Array of label elements.
+     */
+    function createFacultyCheckboxes(facultyArray, groupName) {
+      return facultyArray.map(faculty => {
+          const label = document.createElement('label');
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.name = `faculty_${groupName}`; 
+          input.value = faculty;
+          label.appendChild(input);
+          label.append(` ${faculty}`); 
+          return label;
+      });
+    }
+
+    /**
+     * Initializes all faculty selector areas (main form and edit modal).
+     */
+    function initializeFacultySelectors() {
+      mainFormFullTimeFacultyContainer.innerHTML = ''; 
+      createFacultyCheckboxes(fullTimeList, 'mainFT').forEach(el => mainFormFullTimeFacultyContainer.appendChild(el));
+
+      mainFormSactFacultyContainer.innerHTML = ''; 
+      createFacultyCheckboxes(sactList, 'mainSACT').forEach(el => mainFormSactFacultyContainer.appendChild(el));
+
+      editModalFullTimeFacultyContainer.innerHTML = '';
+      createFacultyCheckboxes(fullTimeList, 'editFT').forEach(el => editModalFullTimeFacultyContainer.appendChild(el));
+
+      editModalSactFacultyContainer.innerHTML = '';
+      createFacultyCheckboxes(sactList, 'editSACT').forEach(el => editModalSactFacultyContainer.appendChild(el));
+    }
+
+    // --- Local Storage Helper Functions ---
+    const initState = limit => {
+      const counters={}; facultyList.forEach(f => counters[f] = limit);
+      localStorage.setItem(COUNTER_KEY, JSON.stringify(counters));
+      localStorage.setItem(DUTIES_KEY, JSON.stringify([]));
+    };
+    const loadDuties = () => JSON.parse(localStorage.getItem(DUTIES_KEY)) || [];
+    const saveDuties = d => localStorage.setItem(DUTIES_KEY, JSON.stringify(d));
+    const loadCnt    = () => JSON.parse(localStorage.getItem(COUNTER_KEY)) || {};
+    const saveCnt    = c => localStorage.setItem(COUNTER_KEY, JSON.stringify(c));
+    const findRec    = (duties, date, shift) => duties.find(r => r.date === date && r.shift === shift) || null;
+
+    // --- Initial State and Event Listeners ---
+    let dutyLimit = parseInt(dutyLimitInput.value) || 10;
+    
+    dutyLimitInput.addEventListener('input', () => {
+        const newLimit = parseInt(dutyLimitInput.value);
+        if (newLimit > 0) {
+            dutyLimit = newLimit;
+            renderRemaining(); 
+        } else if (dutyLimitInput.value === '') { 
+        } else {
+            dutyLimitInput.value = dutyLimit; 
+        }
+    });
+    
+    initializeFacultySelectors(); 
+    if (!localStorage.getItem(DUTIES_KEY) || !localStorage.getItem(COUNTER_KEY)) {
+        initState(dutyLimit);
+    } else { 
+        const initialInputValue = parseInt(dutyLimitInput.value);
+        if (initialInputValue > 0) {
+            dutyLimit = initialInputValue;
+        } else {
+            const loadedCounters = loadCnt();
+            const someFacultyKey = facultyList.length > 0 ? facultyList[0] : null;
+            let inferredLimit = 10; 
+            dutyLimit = initialInputValue > 0 ? initialInputValue : inferredLimit;
+            dutyLimitInput.value = dutyLimit;
+        }
+    }
+    renderAll(); 
+    
+    document.getElementById('resetData').onclick = () => {
+      if (confirm('Are you sure you want to reset all data?')) {
+        const currentLimitValue = parseInt(dutyLimitInput.value); 
+        if (currentLimitValue > 0) {
+            dutyLimit = currentLimitValue; 
+        } else {
+            showUIMessage('mainFormMessage', 'Invalid Max Duties value for reset. Using last valid limit or default.');
+        }
+        initState(dutyLimit);
+        renderAll();
+        showUIMessage('mainFormMessage', 'All data has been reset.', false);
+      }
+    };
+    document.getElementById('printPDF').onclick = () => window.print();
+
+    // --- Main Duty Assignment Form Logic ---
+    dutyForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const date = document.getElementById('date').value; 
+      const shift = document.querySelector('input[name="shift"]:checked')?.value;
+      const room = document.querySelector('input[name="room"]:checked')?.value;
+      const selectedFaculty = [
+          ...mainFormFullTimeFacultyContainer.querySelectorAll('input[type="checkbox"]:checked'),
+          ...mainFormSactFacultyContainer.querySelectorAll('input[type="checkbox"]:checked')
+      ].map(cb => cb.value);
+
+      if (!date || !shift || !room) {
+        showUIMessage('mainFormMessage', 'Please fill all required fields: Date, Shift, and Room.');
+        return;
+      }
+      if (selectedFaculty.length === 0) {
+        showUIMessage('mainFormMessage', 'Please select at least one faculty member.');
+        return;
+      }
+
+      const duties = loadDuties(); 
+      const cnt = loadCnt(); 
+      const currentMaxDuties = parseInt(dutyLimitInput.value) || dutyLimit;
+
+      facultyList.forEach(f => {
+          if (cnt[f] === undefined) {
+              cnt[f] = currentMaxDuties; 
+          }
+      });
+      
+      let rec = findRec(duties, date, shift);
+
+      if (!rec) { 
+        for (const f of selectedFaculty) {
+          if (cnt[f] <= 0) { 
+            showUIMessage('mainFormMessage', `Faculty ${f} has no remaining duties.`);
+            return; 
+          }
+        }
+        selectedFaculty.forEach(f => {
+            cnt[f]--;
+        });
+        rec = {date, shift, rooms:{}};
+        roomList.forEach(rNum => rec.rooms[rNum] = []); 
+        rec.rooms[room] = [...selectedFaculty];
+        duties.push(rec);
+      } else { 
+        if (!rec.rooms.hasOwnProperty(room)) rec.rooms[room] = []; 
+        
+        for (const f of selectedFaculty) {
+            const isAlreadyInRoom = (rec.rooms[room] || []).includes(f);
+            if (!isAlreadyInRoom && cnt[f] <= 0) {
+                showUIMessage('mainFormMessage', `Faculty ${f} has no remaining duties to be added.`);
+                return; 
+            }
+        }
+        selectedFaculty.forEach(f => {
+            const isAlreadyInRoom = (rec.rooms[room] || []).includes(f);
+            if (!isAlreadyInRoom) {
+                cnt[f]--;
+            }
+        });
+        const updatedFacultyForRoom = new Set([...(rec.rooms[room] || []), ...selectedFaculty]);
+        rec.rooms[room] = [...updatedFacultyForRoom];
+      }
+      saveDuties(duties); saveCnt(cnt); renderAll();
+      
+      e.target.reset(); 
+      document.querySelectorAll('input[name="shift"]').forEach(rb => rb.checked = false);
+      document.querySelectorAll('input[name="room"]').forEach(rb => rb.checked = false);
+      mainFormFullTimeFacultyContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+      mainFormSactFacultyContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+      showUIMessage('mainFormMessage', 'Duty assigned successfully!', false);
+    });
+
+    // --- Rendering Functions ---
+    function renderAll() { renderShifts(); renderFrequency(); renderRemaining(); }
+
+    function renderShifts() {
+      const duties = loadDuties();
+      buildShiftTable('#morningDutyTable tbody', duties.filter(d => d.shift === 'Morning'));
+      buildShiftTable('#afternoonDutyTable tbody', duties.filter(d => d.shift === 'Afternoon'));
+
+      function buildShiftTable(tableBodySelector, data) {
+        const tbody = document.querySelector(tableBodySelector);
+        tbody.innerHTML = ''; 
+        data.sort((a, b) => a.date.localeCompare(b.date)).forEach(rec => {
+          const tr = document.createElement('tr');
+          const dateCell = document.createElement('td');
+          dateCell.textContent = formatDateToDDMMYYYY(rec.date); 
+          tr.appendChild(dateCell);
+
+          roomList.forEach(rNum => {
+            const td = document.createElement('td');
+            td.className = 'roomCell';
+            const assignedFaculty = rec.rooms[rNum] || [];
+            
+            td.innerHTML = ''; 
+            if (assignedFaculty.length) {
+                assignedFaculty.sort().forEach((facultyName, index) => { 
+                    const span = document.createElement('span');
+                    span.textContent = facultyName;
+                    td.appendChild(span);
+                    if (index < assignedFaculty.length - 1) {
+                        td.appendChild(document.createTextNode(', '));
+                        if ((index + 1) % 2 === 0 && assignedFaculty.length > 2) { 
+                            td.appendChild(document.createElement('br'));
+                        }
+                    }
+                });
+            } else {
+                td.textContent = '-'; 
+            }
+            
+            const editButton = document.createElement('button');
+            editButton.className = 'roomActionBtn';
+            editButton.textContent = 'Edit';
+            editButton.onclick = () => openEdit(rec, rNum);
+            
+            if (assignedFaculty.length > 0) { 
+                td.appendChild(document.createElement('br'));
+            }
+            td.appendChild(editButton);
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function renderFrequency() {
+      const freq = {}; 
+      facultyList.forEach(f => { 
+          freq[f] = {}; 
+          roomList.forEach(r => freq[f][r] = 0); 
+      });
+
+      loadDuties().forEach(rec => {
+        roomList.forEach(r => {
+          if (rec.rooms[r]) {
+            rec.rooms[r].forEach(f => {
+              if (!freq[f]) { 
+                  freq[f] = {}; 
+                  roomList.forEach(room_init => freq[f][room_init] = 0);
+              }
+              freq[f][r]++;
+            });
+          }
+        });
+      });
+      
+      fillFrequencyTable('#roomFrequencyFTTable tbody', fullTimeList, freq); 
+      fillFrequencyTable('#roomFrequencySACTTable tbody', sactList, freq);   
+
+      function fillFrequencyTable(selector, listToDisplay, sourceData) {
+        const tbody = document.querySelector(selector);
+        tbody.innerHTML = '';
+        listToDisplay.forEach(f => {
+          const tr = document.createElement('tr');
+          let cellsHtml = `<td>${f}</td>`;
+          cellsHtml += roomList.map(r => `<td>${sourceData[f]?.[r] || 0}</td>`).join('');
+          tr.innerHTML = cellsHtml;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function renderRemaining() {
+      const cnt = loadCnt();
+      const currentDisplayLimit = parseInt(dutyLimitInput.value) || dutyLimit; 
+
+      fillRemainingTable('#facultyDutiesFTTable tbody', fullTimeList, cnt, currentDisplayLimit); 
+      fillRemainingTable('#facultyDutiesSACTTable tbody', sactList, cnt, currentDisplayLimit);   
+
+      function fillRemainingTable(selector, listToDisplay, sourceData, displayLimit) {
+        const tbody = document.querySelector(selector);
+        tbody.innerHTML = '';
+        listToDisplay.forEach(f => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${f}</td><td>${sourceData[f] !== undefined ? sourceData[f] : displayLimit}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    // --- Edit Modal Logic ---
+    function openEdit(rec, room) {
+      modalOverlay.style.display = 'block';
+      editModal.style.display = 'flex'; 
+      document.getElementById('editDate').value = rec.date; 
+      document.getElementById('editShift').value = rec.shift;
+      document.getElementById('editRoom').value = room;
+      document.getElementById('editModalTitle').textContent = `Edit: ${formatDateToDDMMYYYY(rec.date)}, ${rec.shift}, Room ${room}`;
+
+      const facultyInRoom = new Set(rec.rooms[room] || []);
+      
+      editModalFullTimeFacultyContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = facultyInRoom.has(cb.value);
+      });
+      editModalSactFacultyContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = facultyInRoom.has(cb.value);
+      });
+
+      showUIMessage('editFormMessage', '', true, 0); 
+      if (saveChangesBtn) saveChangesBtn.focus(); 
+    }
+
+    const closeModal = () => {
+      modalOverlay.style.display = 'none';
+      editModal.style.display = 'none';
+      showUIMessage('editFormMessage', '', true, 0); 
+    };
+    document.getElementById('closeEditModal').onclick = closeModal;
+    modalOverlay.onclick = closeModal; 
+
+    editDutyForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const date = document.getElementById('editDate').value;
+      const shift = document.getElementById('editShift').value;
+      const room = document.getElementById('editRoom').value;
+      
+      const newlySelectedFaculty = [
+          ...editModalFullTimeFacultyContainer.querySelectorAll('input[type="checkbox"]:checked'),
+          ...editModalSactFacultyContainer.querySelectorAll('input[type="checkbox"]:checked')
+      ].map(cb => cb.value);
+
+      const duties = loadDuties(); 
+      const cnt = loadCnt();
+      const currentMaxDuties = parseInt(dutyLimitInput.value) || dutyLimit;
+
+      facultyList.forEach(f => {
+          if (cnt[f] === undefined) {
+              cnt[f] = currentMaxDuties; 
+          }
+      });
+
+      const rec = findRec(duties, date, shift);
+
+      if (!rec) {
+        showUIMessage('editFormMessage', 'Error: Original record not found. Cannot save changes.');
+        return;
+      }
+
+      const originalFacultyInRoom = new Set(rec.rooms[room] || []);
+      const newlySelectedFacultySet = new Set(newlySelectedFaculty);
+
+      const facultyToAdd = newlySelectedFaculty.filter(f => !originalFacultyInRoom.has(f));
+      const facultyToRemove = [...originalFacultyInRoom].filter(f => !newlySelectedFacultySet.has(f));
+
+      for (const f of facultyToAdd) {
+        if (cnt[f] <= 0) { 
+          showUIMessage('editFormMessage', `Cannot add ${f}: No remaining duties.`);
+          return; 
+        }
+      }
+
+      facultyToRemove.forEach(f => {
+        if (cnt[f] < currentMaxDuties) cnt[f]++; 
+      });
+      facultyToAdd.forEach(f => {
+        cnt[f]--; 
+      });
+      
+      rec.rooms[room] = newlySelectedFaculty.sort(); 
+      saveDuties(duties); saveCnt(cnt); renderAll();
+      showUIMessage('mainFormMessage', 'Duty assignment updated successfully!', false); 
+      closeModal();
+    });
+
+  })(); 
+  </script>
+</body>
+</html>
